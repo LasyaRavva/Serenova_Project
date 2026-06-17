@@ -38,7 +38,7 @@ See `/docs/schema.md` (added in commit 2)
 - [x] Commit 3 — Auth: signup / login / profiles
 - [x] Commit 4 — Service listing page
 - [x] Commit 5 — Booking form: calendar + time slot picker
-- [ ] Commit 6 — User dashboard + notifications
+- [x] Commit 6 — User dashboard + notifications
 - [ ] Commit 7 — Payment flow
 - [ ] Commit 8 — Polish, responsive, deploy
 
