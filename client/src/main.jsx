@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import Services from "./pages/Services";
+import Book from "./pages/Book";
 import "./index.css";
 
 function App() {
@@ -28,6 +29,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+  path="/book/:serviceId"
+  element={
+    <ProtectedRoute>
+      <Book />
+    </ProtectedRoute>
+  }
+/>
           {/* Commit 4+ routes go here */}
         </Routes>
       </BrowserRouter>
