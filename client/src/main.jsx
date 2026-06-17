@@ -7,6 +7,7 @@ import Navbar from "./components/layout/Navbar";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
+import Services from "./pages/Services";
 import "./index.css";
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
           <Route path="/" element={<Navigate to="/services" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/services" element={<Services />} />
           <Route
             path="/profile"
             element={

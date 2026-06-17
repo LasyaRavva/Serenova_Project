@@ -36,7 +36,7 @@ See `/docs/schema.md` (added in commit 2)
 - [x] Commit 1 — Project setup, README, client brief
 - [x] Commit 2 — Database schema
 - [x] Commit 3 — Auth: signup / login / profiles
-- [ ] Commit 4 — Service listing page
+- [x] Commit 4 — Service listing page
 - [ ] Commit 5 — Booking form: calendar + time slot picker
 - [ ] Commit 6 — User dashboard + notifications
 - [ ] Commit 7 — Payment flow
