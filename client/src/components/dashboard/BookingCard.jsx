@@ -1,5 +1,8 @@
 import { format, parseISO } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { usePayment } from "../../hooks/usePayment";
+import PaymentStatusBadge from "../payment/PaymentStatusBadge";
 
 const STATUS_STYLE = {
   confirmed: "text-green-400 bg-green-400/10 border-green-400/20",
@@ -14,11 +17,18 @@ function formatTime(t) {
 }
 
 export default function BookingCard({ booking, onCancel }) {
-  const navigate  = useNavigate();
-  const service   = booking.services;
+  const navigate                        = useNavigate();
+  const service                         = booking.services;
+  const { getPaymentForBooking }        = usePayment();
+  const [payment, setPayment]           = useState(null);
+
   const isUpcoming =
     booking.status === "confirmed" &&
     booking.booking_date >= new Date().toISOString().split("T")[0];
+
+  useEffect(() => {
+    getPaymentForBooking(booking.id).then(setPayment);
+  }, [booking.id]);
 
   return (
     <div className="bg-dark-surface border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-colors">
@@ -55,6 +65,17 @@ export default function BookingCard({ booking, onCancel }) {
             <span>₹{Number(service?.price).toLocaleString("en-IN")}</span>
           </div>
 
+          {/* Payment status */}
+          <div className="flex items-center gap-2 mt-2">
+            <PaymentStatusBadge status={payment?.status} />
+            {payment?.payment_method === "mock_card" && (
+              <span className="text-xs text-muted font-body">· Card</span>
+            )}
+            {payment?.payment_method === "location" && (
+              <span className="text-xs text-muted font-body">· Pay on arrival</span>
+            )}
+          </div>
+
           {booking.notes && (
             <p className="text-muted text-xs font-body mt-2 italic">
               "{booking.notes}"
@@ -81,6 +102,7 @@ export default function BookingCard({ booking, onCancel }) {
           </button>
         </div>
       )}
+
     </div>
   );
 }

@@ -5,6 +5,8 @@ import { useBooking } from "../hooks/useBooking";
 import Calendar from "../components/booking/Calendar";
 import TimeSlotPicker from "../components/booking/TimeSlotPicker";
 import BookingSummary from "../components/booking/BookingSummary";
+import PaymentModal from "../components/payment/PaymentModal";
+import PaymentStatusBadge from "../components/payment/PaymentStatusBadge";
 
 export default function Book() {
   const { serviceId }                 = useParams();
@@ -19,6 +21,13 @@ export default function Book() {
   const [notes, setNotes]               = useState("");
   const [confirming, setConfirming]     = useState(false);
   const [confirmed, setConfirmed]       = useState(null); // booking object
+  const [showPayment, setShowPayment]   = useState(false);
+const [payment, setPayment]           = useState(null);
+
+function handlePaymentSuccess(paymentData) {
+  setPayment(paymentData);
+  setShowPayment(false);
+}
 
   // When date changes, reset slot + fetch availability
   async function handleDateSelect(date) {
@@ -47,49 +56,86 @@ export default function Book() {
 
   // ── Success screen ──────────────────────────────────────────────
   if (confirmed) {
-    return (
-      <div className="min-h-screen bg-dark-base flex items-center justify-center px-6">
-        <div className="max-w-md w-full text-center">
+  return (
+    <div className="min-h-screen bg-dark-base flex items-center justify-center px-6">
+      <div className="max-w-md w-full text-center">
 
-          {/* Gold ring checkmark */}
-          <div className="w-20 h-20 rounded-full border-2 border-gold flex items-center justify-center mx-auto mb-8">
-            <span className="text-gold text-3xl">✓</span>
-          </div>
-
-          <h2 className="font-display text-4xl text-white mb-3">
-            You're booked
-          </h2>
-          <p className="text-muted font-body text-sm mb-8 leading-relaxed">
-            Your appointment at Serenova has been confirmed.
-            We'll see you soon.
-          </p>
-
-          {/* Booking ID */}
-          <div className="bg-dark-surface border border-white/10 rounded-2xl p-5 mb-8 text-left space-y-3">
-            <Row label="Service" value={service?.name} />
-            <Row label="Booking ID" value={confirmed.id.slice(0, 8).toUpperCase()} />
-            <Row label="Status" value="Confirmed" gold />
-          </div>
-
-          <div className="flex gap-3">
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="flex-1 bg-gold hover:bg-gold/90 text-dark-base font-body font-medium text-sm py-3 rounded-xl transition-colors"
-            >
-              View My Bookings
-            </button>
-            <button
-              onClick={() => navigate("/services")}
-              className="flex-1 border border-white/10 hover:border-gold/30 text-white font-body text-sm py-3 rounded-xl transition-colors"
-            >
-              Back to Services
-            </button>
-          </div>
-
+        {/* Gold ring checkmark */}
+        <div className="w-20 h-20 rounded-full border-2 border-gold flex items-center justify-center mx-auto mb-8">
+          <span className="text-gold text-3xl">✓</span>
         </div>
+
+        <h2 className="font-display text-4xl text-white mb-3">You're booked</h2>
+        <p className="text-muted font-body text-sm mb-8 leading-relaxed">
+          Your appointment at Serenova has been confirmed.
+        </p>
+
+        {/* Booking summary */}
+        <div className="bg-dark-surface border border-white/10 rounded-2xl p-5 mb-6 text-left space-y-3">
+          <Row label="Service"    value={service?.name} />
+          <Row label="Booking ID" value={confirmed.id.slice(0, 8).toUpperCase()} />
+          <div className="flex justify-between items-center">
+            <span className="text-muted text-sm font-body">Payment</span>
+            <PaymentStatusBadge status={payment?.status} />
+          </div>
+        </div>
+
+        {/* Payment CTA — only if not yet paid */}
+        {!payment && (
+          <button
+            onClick={() => setShowPayment(true)}
+            className="w-full bg-gold hover:bg-gold/90 text-dark-base font-body font-medium text-sm py-3.5 rounded-xl transition-colors mb-3"
+          >
+            Complete Payment
+          </button>
+        )}
+
+        {payment?.status === "paid" && (
+          <div className="bg-green-400/10 border border-green-400/20 rounded-2xl px-5 py-3 mb-3">
+            <p className="text-green-400 text-sm font-body">
+              ✓ Payment of ₹{Number(service?.price).toLocaleString("en-IN")} received
+            </p>
+          </div>
+        )}
+
+        {payment?.status === "pending" && (
+          <div className="bg-amber-400/10 border border-amber-400/20 rounded-2xl px-5 py-3 mb-3">
+            <p className="text-amber-400 text-sm font-body">
+              Please bring payment when you visit Serenova
+            </p>
+          </div>
+        )}
+
+        <div className="flex gap-3 mt-2">
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="flex-1 border border-white/10 hover:border-gold/30 text-white font-body text-sm py-3 rounded-xl transition-colors"
+          >
+            My Bookings
+          </button>
+          <button
+            onClick={() => navigate("/services")}
+            className="flex-1 border border-white/10 hover:border-gold/30 text-white font-body text-sm py-3 rounded-xl transition-colors"
+          >
+            Back to Services
+          </button>
+        </div>
+
       </div>
-    );
-  }
+
+      {/* Payment modal */}
+      {showPayment && (
+        <PaymentModal
+          booking={confirmed}
+          service={service}
+          onSuccess={handlePaymentSuccess}
+          onClose={() => setShowPayment(false)}
+        />
+      )}
+
+    </div>
+  );
+}
 
   // ── Loading ─────────────────────────────────────────────────────
   if (loading) {
