@@ -1,8 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import NotificationBell from "./NotificationBell";
 
 export default function Navbar() {
-  const { user, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
 
   async function handleSignOut() {
@@ -18,11 +19,11 @@ export default function Navbar() {
           SERENOVA
         </Link>
 
-        <div className="flex items-center gap-6">
+        {/* Desktop */}
+        <div className="hidden sm:flex items-center gap-6">
           <Link to="/services" className="text-muted hover:text-white text-sm font-body transition-colors">
             Services
           </Link>
-
           {user ? (
             <>
               <Link to="/dashboard" className="text-muted hover:text-white text-sm font-body transition-colors">
@@ -31,11 +32,33 @@ export default function Navbar() {
               <Link to="/profile" className="text-muted hover:text-white text-sm font-body transition-colors">
                 Profile
               </Link>
+              <NotificationBell />
             </>
           ) : (
             <Link
               to="/login"
               className="bg-gold hover:bg-gold/90 text-dark-base text-sm font-body font-medium px-5 py-2 rounded-xl transition-colors"
+            >
+              Sign In
+            </Link>
+          )}
+        </div>
+
+        {/* Mobile */}
+        <div className="flex sm:hidden items-center gap-3">
+          {user && <NotificationBell />}
+          {user ? (
+            <Link to="/profile">
+              <div className="w-8 h-8 rounded-full bg-dark-card border border-gold/30 flex items-center justify-center">
+                <span className="font-display text-sm text-gold">
+                  {profile?.full_name?.[0]?.toUpperCase() || "?"}
+                </span>
+              </div>
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              className="bg-gold text-dark-base text-xs font-body font-medium px-4 py-2 rounded-xl"
             >
               Sign In
             </Link>

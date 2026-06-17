@@ -41,3 +41,17 @@ See `/docs/schema.md` (added in commit 2)
 - [ ] Commit 6 — User dashboard + notifications
 - [ ] Commit 7 — Payment flow
 - [ ] Commit 8 — Polish, responsive, deploy
+
+
+src/
+├── hooks/
+│   ├── useBookings.js
+│   └── useNotifications.js
+├── components/
+│   ├── dashboard/
+│   │   ├── BookingCard.jsx
+│   │   └── BookingTabs.jsx
+│   └── layout/
+│       └── NotificationBell.jsx
+└── pages/
+    └── Dashboard.jsx

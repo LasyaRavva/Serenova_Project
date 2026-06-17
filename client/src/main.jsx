@@ -9,6 +9,7 @@ import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import Services from "./pages/Services";
 import Book from "./pages/Book";
+import Dashboard from "./pages/Dashboard";
 import "./index.css";
 
 function App() {
@@ -34,6 +35,15 @@ function App() {
   element={
     <ProtectedRoute>
       <Book />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/dashboard"
+  element={
+    <ProtectedRoute>
+      <Dashboard />
     </ProtectedRoute>
   }
 />
