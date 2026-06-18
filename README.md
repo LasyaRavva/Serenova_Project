@@ -41,3 +41,14 @@ See `/docs/schema.md` (added in commit 2)
 - [x] Commit 6 — User dashboard + notifications
 - [x] Commit 7 — Payment flow
 - [ ] Commit 8 — Polish, responsive, deploy
+
+
+src/
+├── components/
+│   └── ui/
+│       ├── Toast.jsx
+│       └── ToastContext.jsx
+├── pages/
+│   └── NotFound.jsx
+├── index.css        (mobile fixes)
+└── main.jsx         (wire toast + 404)
