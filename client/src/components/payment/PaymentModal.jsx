@@ -54,8 +54,8 @@ export default function PaymentModal({ booking, service, onSuccess, onClose }) {
 
   return (
     // Backdrop
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center px-4">
-      <div className="bg-dark-surface border border-white/10 rounded-2xl w-full max-w-md overflow-hidden">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-start sm:items-center justify-center px-4 py-6 overflow-y-auto">
+      <div className="bg-dark-surface border border-white/10 rounded-2xl w-full max-w-md overflow-y-auto max-h-[90vh] modal-scroll">
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
@@ -76,22 +76,22 @@ export default function PaymentModal({ booking, service, onSuccess, onClose }) {
         <div className="px-6 py-6">
 
           {/* Amount */}
-          <div className="bg-dark-card rounded-2xl p-5 mb-6 flex items-center justify-between">
-            <div>
-              <p className="text-muted text-xs font-body uppercase tracking-wider mb-1">
-                Total Due
-              </p>
-              <p className="font-display text-3xl text-gold">
-                ₹{Number(service?.price).toLocaleString("en-IN")}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-muted text-xs font-body">Booking ID</p>
-              <p className="text-white text-xs font-body mt-1">
-                #{booking?.id?.slice(0, 8).toUpperCase()}
-              </p>
-            </div>
-          </div>
+<div className="bg-dark-card rounded-2xl p-5 mb-6 flex items-center justify-between">
+  <div>
+    <p className="text-muted text-xs font-body uppercase tracking-wider mb-1">
+      Total Due
+    </p>
+    <p className="font-display text-3xl text-gold">
+      ₹{Number(service?.price).toLocaleString("en-IN")}
+    </p>
+  </div>
+  <div className="text-right">
+    <p className="text-muted text-xs font-body">Booking ID</p>
+    <p className="text-white text-xs font-body mt-1">
+      #{booking?.id?.slice(0, 8).toUpperCase()}
+    </p>
+  </div>
+</div>
 
           {/* Step: Choose method */}
           {step === "choose" && (

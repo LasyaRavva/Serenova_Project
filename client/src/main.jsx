@@ -1,4 +1,3 @@
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
@@ -21,20 +20,14 @@ function App() {
         <BrowserRouter>
           <Navbar />
           <Routes>
-            <Route path="/"         element={<Navigate to="/services" replace />} />
-            <Route path="/login"    element={<Login />} />
-            <Route path="/signup"   element={<Signup />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/profile"
-              element={<ProtectedRoute><Profile /></ProtectedRoute>}
-            />
-            <Route path="/book/:serviceId"
-              element={<ProtectedRoute><Book /></ProtectedRoute>}
-            />
-            <Route path="/dashboard"
-              element={<ProtectedRoute><Dashboard /></ProtectedRoute>}
-            />
-            <Route path="*" element={<NotFound />} />
+            <Route path="/"              element={<Navigate to="/services" replace />} />
+            <Route path="/login"         element={<Login />} />
+            <Route path="/signup"        element={<Signup />} />
+            <Route path="/services"      element={<Services />} />
+            <Route path="/profile"       element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/book/:serviceId" element={<ProtectedRoute><Book /></ProtectedRoute>} />
+            <Route path="/dashboard"     element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="*"              element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </ToastProvider>
@@ -42,6 +35,4 @@ function App() {
   );
 }
 
-createRoot(document.getElementById("root")).render(
-  <StrictMode><App /></StrictMode>
-);
+createRoot(document.getElementById("root")).render(<App />);

@@ -6,69 +6,38 @@ export function useNotifications() {
   const { user }                          = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount]     = useState(0);
-  const channelRef                        = useRef(null);
+  const prevCountRef                      = useRef(0);
+  const intervalRef                       = useRef(null);
 
-  async function fetchNotifications(userId) {
+  useEffect(() => {
+    if (!user) return;
+
+    // Fetch immediately on mount
+    fetchNotifications();
+
+    // Poll every 5 seconds for new notifications
+    intervalRef.current = setInterval(fetchNotifications, 5000);
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [user?.id]);
+
+  async function fetchNotifications() {
     const { data } = await supabase
       .from("notifications")
       .select("*")
-      .eq("user_id", userId)
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(20);
 
-    setNotifications(data || []);
-    setUnreadCount((data || []).filter((n) => !n.is_read).length);
+    if (!data) return;
+
+    setNotifications(data);
+
+    const unread = data.filter((n) => !n.is_read).length;
+    setUnreadCount(unread);
   }
-
-  useEffect(() => {
-    if (!user?.id) return;
-
-    let isActive = true;
-    const channelTopic = `notifications:${user.id}`;
-
-    async function setupNotifications() {
-      const existingChannels = supabase
-        .getChannels()
-        .filter((channel) => channel.topic === channelTopic);
-
-      await Promise.all(existingChannels.map((channel) => supabase.removeChannel(channel)));
-
-      if (!isActive) return;
-
-      fetchNotifications(user.id);
-
-      const channel = supabase
-        .channel(channelTopic)
-        .on(
-          "postgres_changes",
-          {
-            event:  "INSERT",
-            schema: "public",
-            table:  "notifications",
-            filter: `user_id=eq.${user.id}`,
-          },
-          (payload) => {
-            if (!isActive) return;
-            setNotifications((prev) => [payload.new, ...prev]);
-            setUnreadCount((c) => c + 1);
-          }
-        )
-        .subscribe();
-
-      channelRef.current = channel;
-    }
-
-    setupNotifications();
-
-    return () => {
-      isActive = false;
-
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
-      }
-    };
-  }, [user?.id]);
 
   async function markAllRead() {
     await supabase

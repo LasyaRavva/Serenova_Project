@@ -29,3 +29,13 @@
     overflow: hidden;
   }
 }
+
+
+/* Hide scrollbar inside modal */
+.modal-scroll {
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE/Edge */
+}
+.modal-scroll::-webkit-scrollbar {
+  display: none;                /* Chrome/Safari */
+}

@@ -56,55 +56,50 @@ export default function NotificationBell() {
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute right-0 top-12 w-80 bg-dark-surface border border-white/10 rounded-2xl shadow-2xl shadow-black/60 z-50 overflow-hidden">
+  <div className="fixed right-4 top-16 w-80 bg-dark-surface border border-white/10 rounded-2xl shadow-2xl shadow-black/60 z-50 overflow-hidden">
 
-          <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
-            <p className="font-display text-base text-white">Notifications</p>
-            <span className="text-xs text-muted font-body">
-              {notifications.length} total
+    <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
+      <p className="font-display text-base text-white">Notifications</p>
+      <span className="text-xs text-muted font-body">
+        {notifications.length} total
+      </span>
+    </div>
+
+    <div className="max-h-80 overflow-y-auto">
+      {notifications.length === 0 ? (
+        <div className="px-5 py-8 text-center">
+          <p className="text-muted text-sm font-body">No notifications yet</p>
+        </div>
+      ) : (
+        notifications.map((n) => (
+          <div
+            key={n.id}
+            className={`
+              px-5 py-4 border-b border-white/5 flex gap-3
+              ${!n.is_read ? "bg-gold/5" : ""}
+            `}
+          >
+            <span className={`text-sm mt-0.5 shrink-0 ${TYPE_COLOR[n.type] || "text-muted"}`}>
+              {TYPE_ICON[n.type] || "·"}
             </span>
-          </div>
-
-          <div className="max-h-80 overflow-y-auto">
-            {notifications.length === 0 ? (
-              <div className="px-5 py-8 text-center">
-                <p className="text-muted text-sm font-body">No notifications yet</p>
-              </div>
-            ) : (
-              notifications.map((n) => (
-                <div
-                  key={n.id}
-                  className={`
-                    px-5 py-4 border-b border-white/5 flex gap-3
-                    ${!n.is_read ? "bg-gold/5" : ""}
-                  `}
-                >
-                  {/* Icon */}
-                  <span className={`text-sm mt-0.5 shrink-0 ${TYPE_COLOR[n.type] || "text-muted"}`}>
-                    {TYPE_ICON[n.type] || "·"}
-                  </span>
-
-                  {/* Message */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-white/80 text-sm font-body leading-snug">
-                      {n.message}
-                    </p>
-                    <p className="text-muted text-xs font-body mt-1">
-                      {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
-                    </p>
-                  </div>
-
-                  {/* Unread dot */}
-                  {!n.is_read && (
-                    <div className="w-1.5 h-1.5 rounded-full bg-gold shrink-0 mt-2" />
-                  )}
-                </div>
-              ))
+            <div className="flex-1 min-w-0">
+              <p className="text-white/80 text-sm font-body leading-snug">
+                {n.message}
+              </p>
+              <p className="text-muted text-xs font-body mt-1">
+                {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
+              </p>
+            </div>
+            {!n.is_read && (
+              <div className="w-1.5 h-1.5 rounded-full bg-gold shrink-0 mt-2" />
             )}
           </div>
-
-        </div>
+        ))
       )}
+    </div>
+
+  </div>
+)}
     </div>
   );
 }
