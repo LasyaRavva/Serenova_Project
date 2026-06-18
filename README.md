@@ -33,10 +33,7 @@ See `/docs/schema.md` (added in commit 2)
 
 
 ## Live Demo
-https://serenova.netlify.app
-
-## Screenshots
-(add screenshots of: Services page, Book page with calendar, Dashboard, Mobile view)
+https://serenova-project.vercel.app/
 
 ## Known limitations / next steps
 - Stripe live payments (currently mock)
