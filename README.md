@@ -31,6 +31,20 @@ Cormorant Garamond display font paired with Inter for body text.
 
 See `/docs/schema.md` (added in commit 2)
 
+
+## Live Demo
+https://serenova.netlify.app
+
+## Screenshots
+(add screenshots of: Services page, Book page with calendar, Dashboard, Mobile view)
+
+## Known limitations / next steps
+- Stripe live payments (currently mock)
+- Admin panel for staff to manage bookings
+- SMS reminders via Twilio
+- Multi-staff booking (assign stylist)
+- Google Calendar sync
+
 ## Progress
 
 - [x] Commit 1 — Project setup, README, client brief
@@ -40,15 +54,4 @@ See `/docs/schema.md` (added in commit 2)
 - [x] Commit 5 — Booking form: calendar + time slot picker
 - [x] Commit 6 — User dashboard + notifications
 - [x] Commit 7 — Payment flow
-- [ ] Commit 8 — Polish, responsive, deploy
-
-
-src/
-├── components/
-│   └── ui/
-│       ├── Toast.jsx
-│       └── ToastContext.jsx
-├── pages/
-│   └── NotFound.jsx
-├── index.css        (mobile fixes)
-└── main.jsx         (wire toast + 404)
+- [x] Commit 8 — Polish, responsive, deploy

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useBookings } from "../hooks/useBookings";
 import BookingTabs from "../components/dashboard/BookingTabs";
 import BookingCard from "../components/dashboard/BookingCard";
+import { useToast } from "../components/ui/ToastContext";
 
 export default function Dashboard() {
   const { upcoming, past, cancelled, loading, cancelBooking } = useBookings();
@@ -10,6 +11,7 @@ export default function Dashboard() {
 
   const tabData = { upcoming, past, cancelled };
   const current = tabData[activeTab] || [];
+  const { addToast } = useToast();
 
   async function handleCancel(bookingId, serviceName, bookingDate) {
     const confirmed = window.confirm(
@@ -19,6 +21,7 @@ export default function Dashboard() {
 
     setCancelling(bookingId);
     await cancelBooking(bookingId, serviceName, bookingDate);
+    addToast({ message: "Booking cancelled.", type: "info" });
     setCancelling(null);
   }
 

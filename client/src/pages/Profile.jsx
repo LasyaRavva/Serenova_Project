@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../components/ui/ToastContext";
 
 export default function Profile() {
   const { profile, updateProfile, signOut } = useAuth();
@@ -8,7 +9,7 @@ export default function Profile() {
     phone: profile?.phone || "",
   });
   const [status, setStatus] = useState(""); // 'saving' | 'saved' | 'error'
-
+  const { addToast } = useToast();
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
@@ -19,9 +20,11 @@ export default function Profile() {
     try {
       await updateProfile(form);
       setStatus("saved");
+      addToast({ message: "Profile updated.", type: "success" });
       setTimeout(() => setStatus(""), 2500);
     } catch {
       setStatus("error");
+      addToast({ message: "Couldn't save changes. Try again.", type: "error" });
     }
   }
 
