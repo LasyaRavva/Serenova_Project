@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import servicesRouter from "./routes/services.js";
 import bookingsRouter from "./routes/bookings.js";
 import paymentsRouter from "./routes/payments.js";
+import { startReminderJob } from "./jobs/reminders.js";
+startReminderJob();
 
 // Webhook route BEFORE json middleware
 app.use("/api/payments/webhook",
