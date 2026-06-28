@@ -1,6 +1,24 @@
 import { Router } from "express";
 import { supabase } from "../lib/supabase.js";
 import { authenticateUser } from "../middleware/auth.js";
+import { sendBookingConfirmation, sendCancellationEmail } from "../lib/mailer.js";
+
+// After inserting booking:
+const { data: profile } = await supabase
+  .from("profiles")
+  .select("full_name")
+  .eq("id", req.user.id)
+  .single();
+
+const { data: userAuth } = await supabase.auth.admin.getUserById(req.user.id);
+
+await sendBookingConfirmation({
+  to:      userAuth.user.email,
+  name:    profile.full_name,
+  service: service.name,
+  date,
+  time:    startTime,
+});
 
 const router = Router();
 
