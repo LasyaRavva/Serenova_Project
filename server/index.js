@@ -3,6 +3,16 @@ import cors from "cors";
 import dotenv from "dotenv";
 import servicesRouter from "./routes/services.js";
 import bookingsRouter from "./routes/bookings.js";
+import paymentsRouter from "./routes/payments.js";
+
+// Webhook route BEFORE json middleware
+app.use("/api/payments/webhook",
+  express.raw({ type: "application/json" }),
+  (req, res, next) => { next(); }
+);
+
+app.use(express.json());
+app.use("/api/payments", paymentsRouter);
 
 
 dotenv.config();
