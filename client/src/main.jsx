@@ -12,6 +12,7 @@ import Book from "./pages/Book";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import "./index.css";
+import Admin from "./pages/Admin";
 
 function App() {
   return (
@@ -28,6 +29,8 @@ function App() {
             <Route path="/book/:serviceId" element={<ProtectedRoute><Book /></ProtectedRoute>} />
             <Route path="/dashboard"     element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="*"              element={<NotFound />} />
+            <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+
           </Routes>
         </BrowserRouter>
       </ToastProvider>

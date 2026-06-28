@@ -36,6 +36,12 @@ export default function Navbar() {
               <Link to="/profile" className="text-muted hover:text-white text-sm font-body transition-colors">
                 Profile
               </Link>
+              {/* Admin link — desktop */}
+              {profile?.role === "admin" && (
+                <Link to="/admin" className="text-gold text-sm font-body hover:text-gold/80 transition-colors">
+                  Admin
+                </Link>
+              )}
               <NotificationBell />
             </>
           ) : (
@@ -105,6 +111,17 @@ export default function Navbar() {
                 >
                   Profile
                 </Link>
+
+                {/* Admin link — mobile */}
+                {profile?.role === "admin" && (
+                  <Link
+                    to="/admin"
+                    onClick={() => setMenuOpen(false)}
+                    className="text-gold text-sm font-body py-3 border-b border-white/5 transition-colors"
+                  >
+                    Admin
+                  </Link>
+                )}
 
                 <button
                   onClick={handleSignOut}
