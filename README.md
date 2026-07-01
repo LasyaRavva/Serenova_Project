@@ -52,3 +52,34 @@ https://serenova-project.vercel.app/
 - [x] Commit 6 — User dashboard + notifications
 - [x] Commit 7 — Payment flow
 - [x] Commit 8 — Polish, responsive, deploy
+
+## Live URLs
+- Frontend: https://serenova.vercel.app
+- Backend API: https://serenova-api.railway.app
+
+## API Endpoints
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | /api/services | No | List all services |
+| GET | /api/services/:id | No | Single service |
+| GET | /api/bookings/my | Yes | User's bookings |
+| GET | /api/bookings/availability | No | Available slots |
+| POST | /api/bookings | Yes | Create booking |
+| PATCH | /api/bookings/:id/cancel | Yes | Cancel booking |
+| POST | /api/payments/create-session | Yes | Stripe checkout |
+| POST | /api/payments/webhook | Stripe | Payment webhook |
+
+## Environment Variables
+### Client (Vercel)
+- VITE_SUPABASE_URL
+- VITE_SUPABASE_ANON_KEY
+- VITE_API_URL
+
+### Server (Railway)
+- SUPABASE_URL
+- SUPABASE_SERVICE_KEY
+- STRIPE_SECRET_KEY
+- STRIPE_WEBHOOK_SECRET
+- EMAIL_USER
+- EMAIL_PASS
+- CLIENT_URL
