@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { useAuth } from "../context/AuthContext";
 import { format } from "date-fns";
+import { apiFetch } from "../lib/api";
 
 export function useBooking(serviceId) {
-  const [service, setService]     = useState(null);
-  const [slots, setSlots]         = useState([]);
+  const { user } = useAuth();
+  const [service, setService]         = useState(null);
+  const [slots, setSlots]             = useState([]);
   const [bookedTimes, setBookedTimes] = useState([]);
-  const [loading, setLoading]     = useState(true);
+  const [loading, setLoading]         = useState(true);
 
-  // Fetch service once
   useEffect(() => {
     async function fetchService() {
       const { data } = await supabase
@@ -22,9 +24,8 @@ export function useBooking(serviceId) {
     if (serviceId) fetchService();
   }, [serviceId]);
 
-  // Fetch available slots + existing bookings for a given date
   async function fetchSlotsForDate(date) {
-    const dayOfWeek = date.getDay(); // 0=Sun … 6=Sat
+    const dayOfWeek = date.getDay();
     const dateStr   = format(date, "yyyy-MM-dd");
 
     const [{ data: availSlots }, { data: existingBookings }] =
@@ -69,12 +70,35 @@ export function useBooking(serviceId) {
 
     if (error) throw error;
 
-    // Insert confirmation notification
+    // In-app notification
     await supabase.from("notifications").insert({
       user_id: userId,
       message: `Your booking for ${service?.name} on ${format(date, "dd MMM yyyy")} at ${slot.start_time.slice(0, 5)} is confirmed.`,
       type:    "booking_confirmed",
     });
+
+    // Send confirmation email via Express backend
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        await apiFetch(
+          "/api/bookings/send-confirmation",
+          {
+            method: "POST",
+            body: JSON.stringify({
+              bookingId: data.id,
+              serviceId,
+              date:      dateStr,
+              startTime: slot.start_time,
+            }),
+          },
+          session.access_token
+        );
+      }
+    } catch (emailErr) {
+      // Don't fail booking if email fails
+      console.error("Email error:", emailErr);
+    }
 
     return data;
   }

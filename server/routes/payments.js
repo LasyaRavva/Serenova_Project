@@ -1,4 +1,4 @@
-import { Router } from "express";
+import express, { Router } from "express";
 import Stripe from "stripe";
 import { supabase } from "../lib/supabase.js";
 import { authenticateUser } from "../middleware/auth.js";
@@ -35,48 +35,42 @@ router.post("/create-session", authenticateUser, async (req, res) => {
   res.json({ url: session.url });
 });
 
-// Stripe webhook — must use raw body
-router.post(
-  "/webhook",
-  express.raw({ type: "application/json" }),
-  async (req, res) => {
-    const sig = req.headers["stripe-signature"];
-    let event;
+// Stripe webhook
+router.post("/webhook", async (req, res) => {
+  const sig = req.headers["stripe-signature"];
+  let event;
 
-    try {
-      event = stripe.webhooks.constructEvent(
-        req.body,
-        sig,
-        process.env.STRIPE_WEBHOOK_SECRET
-      );
-    } catch (err) {
-      return res.status(400).json({ error: err.message });
-    }
-
-    if (event.type === "checkout.session.completed") {
-      const session   = event.data.object;
-      const bookingId = session.metadata.bookingId;
-      const userId    = session.metadata.userId;
-
-      // Record payment
-      await supabase.from("payments").insert({
-        booking_id:     bookingId,
-        amount:         session.amount_total / 100,
-        status:         "paid",
-        payment_method: "stripe",
-        paid_at:        new Date().toISOString(),
-      });
-
-      // Notify user
-      await supabase.from("notifications").insert({
-        user_id: userId,
-        message: `Payment of ₹${session.amount_total / 100} confirmed via Stripe.`,
-        type:    "booking_confirmed",
-      });
-    }
-
-    res.json({ received: true });
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
   }
-);
+
+  if (event.type === "checkout.session.completed") {
+    const session   = event.data.object;
+    const bookingId = session.metadata.bookingId;
+    const userId    = session.metadata.userId;
+
+    await supabase.from("payments").insert({
+      booking_id:     bookingId,
+      amount:         session.amount_total / 100,
+      status:         "paid",
+      payment_method: "stripe",
+      paid_at:        new Date().toISOString(),
+    });
+
+    await supabase.from("notifications").insert({
+      user_id: userId,
+      message: `Payment of ₹${session.amount_total / 100} confirmed via Stripe.`,
+      type:    "booking_confirmed",
+    });
+  }
+
+  res.json({ received: true });
+});
 
 export default router;

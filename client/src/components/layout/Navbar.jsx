@@ -4,9 +4,9 @@ import { useAuth } from "../../context/AuthContext";
 import NotificationBell from "./NotificationBell";
 
 export default function Navbar() {
-  const { user, profile, signOut } = useAuth();
-  const navigate                   = useNavigate();
-  const [menuOpen, setMenuOpen]    = useState(false);
+  const { user, profile, isAdmin, signOut } = useAuth();
+  const navigate                            = useNavigate();
+  const [menuOpen, setMenuOpen]             = useState(false);
 
   async function handleSignOut() {
     await signOut();
@@ -30,14 +30,17 @@ export default function Navbar() {
           </Link>
           {user ? (
             <>
-              <Link to="/dashboard" className="text-muted hover:text-white text-sm font-body transition-colors">
-                My Bookings
-              </Link>
+              {/* Hide My Bookings for admin */}
+              {!isAdmin && (
+                <Link to="/dashboard" className="text-muted hover:text-white text-sm font-body transition-colors">
+                  My Bookings
+                </Link>
+              )}
               <Link to="/profile" className="text-muted hover:text-white text-sm font-body transition-colors">
                 Profile
               </Link>
               {/* Admin link — desktop */}
-              {profile?.role === "admin" && (
+              {isAdmin && (
                 <Link to="/admin" className="text-gold text-sm font-body hover:text-gold/80 transition-colors">
                   Admin
                 </Link>
@@ -96,13 +99,16 @@ export default function Navbar() {
 
             {user ? (
               <>
-                <Link
-                  to="/dashboard"
-                  onClick={() => setMenuOpen(false)}
-                  className="text-muted hover:text-white text-sm font-body py-3 border-b border-white/5 transition-colors"
-                >
-                  My Bookings
-                </Link>
+                {/* Hide My Bookings for admin */}
+                {!isAdmin && (
+                  <Link
+                    to="/dashboard"
+                    onClick={() => setMenuOpen(false)}
+                    className="text-muted hover:text-white text-sm font-body py-3 border-b border-white/5 transition-colors"
+                  >
+                    My Bookings
+                  </Link>
+                )}
 
                 <Link
                   to="/profile"
@@ -113,7 +119,7 @@ export default function Navbar() {
                 </Link>
 
                 {/* Admin link — mobile */}
-                {profile?.role === "admin" && (
+                {isAdmin && (
                   <Link
                     to="/admin"
                     onClick={() => setMenuOpen(false)}

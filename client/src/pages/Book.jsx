@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useBooking } from "../hooks/useBooking";
 import { useToast } from "../components/ui/ToastContext";
+import { supabase } from "../lib/supabase";
+import { apiFetch } from "../lib/api";
 import Calendar from "../components/booking/Calendar";
 import TimeSlotPicker from "../components/booking/TimeSlotPicker";
 import BookingSummary from "../components/booking/BookingSummary";
@@ -25,6 +27,7 @@ export default function Book() {
   const [confirmed, setConfirmed]       = useState(null);
   const [showPayment, setShowPayment]   = useState(false);
   const [payment, setPayment]           = useState(null);
+  const [stripeLoading, setStripeLoading] = useState(false);
 
   async function handleDateSelect(date) {
     setSelectedDate(date);
@@ -60,6 +63,33 @@ export default function Book() {
     addToast({ message: msg, type: "success" });
   }
 
+async function handleStripePayment() {
+  setStripeLoading(true);
+  try {
+    // Refresh session first
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      navigate("/login");
+      return;
+    }
+    const token = session.access_token;
+
+    const { url } = await apiFetch(
+      "/api/payments/create-session",
+      {
+        method: "POST",
+        body: JSON.stringify({ bookingId: confirmed.id, serviceId }),
+      },
+      token
+    );
+
+    window.location.href = url;
+  } catch (err) {
+    addToast({ message: "Payment failed. Please try again.", type: "error" });
+    setStripeLoading(false);
+  }
+}
+
   // ── Success screen ───────────────────────────────────────────────
   if (confirmed) {
     return (
@@ -84,13 +114,26 @@ export default function Book() {
             </div>
           </div>
 
+          {/* Payment options — only if not yet paid */}
           {!payment && (
-            <button
-              onClick={() => setShowPayment(true)}
-              className="w-full bg-gold hover:bg-gold/90 text-dark-base font-body font-medium text-sm py-3.5 rounded-xl transition-colors mb-3"
-            >
-              Complete Payment
-            </button>
+            <div className="space-y-3 mb-3">
+              {/* Stripe payment */}
+              <button
+                onClick={handleStripePayment}
+                disabled={stripeLoading}
+                className="w-full bg-gold hover:bg-gold/90 disabled:opacity-50 text-dark-base font-body font-medium text-sm py-3.5 rounded-xl transition-colors"
+              >
+                {stripeLoading ? "Redirecting to Stripe..." : "Pay Online via Stripe"}
+              </button>
+
+              {/* Mock / Pay at location */}
+              <button
+                onClick={() => setShowPayment(true)}
+                className="w-full border border-white/10 hover:border-gold/30 text-white font-body text-sm py-3 rounded-xl transition-colors"
+              >
+                Pay at Location
+              </button>
+            </div>
           )}
 
           {payment?.status === "paid" && (
@@ -196,7 +239,7 @@ export default function Book() {
                   `}>
                     {done ? "✓" : i + 1}
                   </span>
-                  <span className="hidden sm:inline"> {step} </span>
+                  <span className="hidden sm:inline">{step}</span>
                 </div>
                 {i < 2 && <span className="text-white/10">—</span>}
               </div>
@@ -207,7 +250,7 @@ export default function Book() {
         {/* Main grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-          {/* Mobile summary — above calendar */}
+          {/* Mobile summary */}
           <div className="block lg:hidden">
             <BookingSummary
               service={service}

@@ -3,23 +3,6 @@ import { supabase } from "../lib/supabase.js";
 import { authenticateUser } from "../middleware/auth.js";
 import { sendBookingConfirmation, sendCancellationEmail } from "../lib/mailer.js";
 
-// After inserting booking:
-const { data: profile } = await supabase
-  .from("profiles")
-  .select("full_name")
-  .eq("id", req.user.id)
-  .single();
-
-const { data: userAuth } = await supabase.auth.admin.getUserById(req.user.id);
-
-await sendBookingConfirmation({
-  to:      userAuth.user.email,
-  name:    profile.full_name,
-  service: service.name,
-  date,
-  time:    startTime,
-});
-
 const router = Router();
 
 // GET user's bookings
@@ -54,7 +37,7 @@ router.get("/availability", async (req, res) => {
   ]);
 
   const bookedTimes = new Set((booked || []).map((b) => b.start_time));
-  const available = (slots || []).map((s) => ({
+  const available   = (slots || []).map((s) => ({
     ...s,
     is_available: !bookedTimes.has(s.start_time),
   }));
@@ -81,11 +64,79 @@ router.post("/", authenticateUser, async (req, res) => {
     .single();
 
   if (error) return res.status(500).json({ error: error.message });
+
+  // Send confirmation email
+  try {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", req.user.id)
+      .single();
+
+    const { data: serviceData } = await supabase
+      .from("services")
+      .select("name")
+      .eq("id", serviceId)
+      .single();
+
+    const { data: userAuth } = await supabase.auth.admin.getUserById(req.user.id);
+
+    await sendBookingConfirmation({
+      to:      userAuth.user.email,
+      name:    profile.full_name,
+      service: serviceData.name,
+      date,
+      time:    startTime,
+    });
+  } catch (emailErr) {
+    console.error("Email error:", emailErr.message);
+  }
+
   res.json(data);
+});
+
+// POST send confirmation email only (used when booking is created client-side)
+router.post("/send-confirmation", authenticateUser, async (req, res) => {
+  const { serviceId, date, startTime } = req.body;
+
+  try {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", req.user.id)
+      .single();
+
+    const { data: serviceData } = await supabase
+      .from("services")
+      .select("name")
+      .eq("id", serviceId)
+      .single();
+
+    const { data: userAuth } = await supabase.auth.admin.getUserById(req.user.id);
+
+    await sendBookingConfirmation({
+      to:      userAuth.user.email,
+      name:    profile.full_name,
+      service: serviceData.name,
+      date,
+      time:    startTime,
+    });
+
+    res.json({ sent: true });
+  } catch (err) {
+    console.error("Email failed:", err.message);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // PATCH cancel booking
 router.patch("/:id/cancel", authenticateUser, async (req, res) => {
+  const { data: booking } = await supabase
+    .from("bookings")
+    .select(`*, services(name)`)
+    .eq("id", req.params.id)
+    .single();
+
   const { error } = await supabase
     .from("bookings")
     .update({ status: "cancelled" })
@@ -93,6 +144,26 @@ router.patch("/:id/cancel", authenticateUser, async (req, res) => {
     .eq("user_id", req.user.id);
 
   if (error) return res.status(500).json({ error: error.message });
+
+  try {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", req.user.id)
+      .single();
+
+    const { data: userAuth } = await supabase.auth.admin.getUserById(req.user.id);
+
+    await sendCancellationEmail({
+      to:      userAuth.user.email,
+      name:    profile.full_name,
+      service: booking.services.name,
+      date:    booking.booking_date,
+    });
+  } catch (emailErr) {
+    console.error("Email error:", emailErr.message);
+  }
+
   res.json({ success: true });
 });
 
